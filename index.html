@@ -1,0 +1,106 @@
+<!DOCTYPE HTML> 
+
+<html>
+  <head>
+    <title>typing practice</title>
+
+    <style>
+      * {
+        padding: 0;
+        margin: 0;
+      }
+
+      body {
+        background:  black;
+        color: rgba(100,200,100,.7);
+        font-family: 'Roboto Mono', monospace;
+        font-weight: 100;
+      }
+
+      .game-stats {
+        display: flex;
+        justify-content: space-between;
+        font-size: 20px;
+      }
+
+      .app-container {
+        font-size: 200px;
+        margin-top: 10vh;
+        margin-left: 10vw;
+        width: 80vw;
+        height: 80vh;
+        border:  1px dashed rgba(100,200,100,.25);
+        box-sizing: border-box;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .initialState {
+        font-size: 20px;
+      }
+
+      .flash {
+        animation: border-phase 100ms ease-in-out 0s 3;
+      }
+
+      @keyframes border-phase {
+        0% {
+          border-color: rgba(100,200,100,.25);
+        }
+
+        100% {
+          border-color: transparent;
+        }
+      }
+    </style>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@100&display=swap" rel="stylesheet">
+  </head>
+
+  <body>
+    <div class="game-stats">
+      <div>
+        <span>Score:</span>
+        <span id="scoreboard"></span>
+      </div>
+      <div>
+        <span id="countdown"></span>
+      </div>
+    </div>
+    <div id="appContainer" class="app-container flash initialState">
+      <div id="app"></div>
+    </div>
+    <script>
+      'use strict';
+      let level = 0;
+      let score = 0;
+      const scoreboardEl = document.getElementById("scoreboard");
+      const countdownEl = document.getElementById("countdown");
+      const appContainerEl = document.getElementById("appContainer");
+      const appEl = document.getElementById("app");
+      const synth = window.speechSynthesis;
+      synth.cancel();
+      appEl.innerHTML = "type any key";
+      const speechCache = {};
+      scoreboardEl.innerHTML = score;
+      countdownEl.innerHTML = score;
+
+      document.addEventListener('keydown', e => {
+        const key = appEl.innerHTML = e.key === ' ' ? 'Space' : e.key;
+        const whatToSay = speechCache[key] = speechCache[key] || (new SpeechSynthesisUtterance(key));
+        whatToSay.rate = 2;
+        synth.cancel();
+        synth.speak(whatToSay);
+
+        appContainerEl.classList.remove('initialState');
+        appContainerEl.classList.remove('flash');
+        void appContainerEl.offsetWidth; // hack to trigger reflow to allow animation to replay
+        appContainerEl.classList.add('flash');
+      });
+    </script>
+  </body>
+
+</html>
