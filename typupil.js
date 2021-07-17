@@ -256,12 +256,12 @@ document.addEventListener('keydown', (e) => {
 });
 
 function getRandomKeyForCurrentLevel() {
-    let currLevelObj = levels[currentLevel];
-    if (currLevelData.goal && currentScore >= levels[currentLevel].goal) {
+    let currLevelData = levels[currentLevel];
+    if (currLevelData.goal && currentScore >= currLevelData.goal) {
         currentLevel++;
         levelEl.innerHTML = currentLevel;
     }
-    const currentLevelKeys = levels[currentLevel].keys;
+    const currentLevelKeys = currLevelData.keys;
     const randomKeyIndex = Math.floor(Math.random() * currentLevelKeys.length);
     return currentLevelKeys[randomKeyIndex];
 }
