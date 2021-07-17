@@ -257,10 +257,7 @@ document.addEventListener('keydown', (e) => {
 
 function getRandomKeyForCurrentLevel() {
     let currLevelObj = levels[currentLevel];
-    if (
-        .goal &&
-        currentScore >= levels[currentLevel].goal
-    ) {
+    if (currLevelData.goal && currentScore >= levels[currentLevel].goal) {
         currentLevel++;
         levelEl.innerHTML = currentLevel;
     }
