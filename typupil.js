@@ -25,8 +25,16 @@ const matchAudio = new Audio('audio/sfx/life refill.wav');
 const levelUpAudio = new Audio('audio/sfx/heart piece 1.wav');
 const messageAudio = new Audio('audio/sfx/message.wav');
 const messageFinishedAudio = new Audio('audio/sfx/message finish.wav');
+const rainBGAudio = new Audio('audio/sfx/LTTP_Rain_In.wav');
+rainBGAudio.volume = 0.3;
+rainBGAudio.loop = true;
+
 const gameMusic = new Audio('audio/music/025_A_New_Town.mp3'); //'The Last Sylph.ogg');
 gameMusic.loop = true;
+
+const introMusic = new Audio('audio/music/03. time of the falling rain.mp3');
+introMusic.volume = 0.6;
+introMusic.loop = true;
 
 let heartCount = 0;
 
@@ -223,7 +231,8 @@ document.addEventListener('keydown', (e) => {
         keypressedEl.innerHTML = '';
         levelEl.innerHTML = currentLevel;
         scoreboardEl.innerHTML = currentScore;
-        gameMusic.play();
+        // gameMusic.play();
+        rainBGAudio.play();
         appContainerEl.classList.add('started');
 
         animateMessages(
@@ -245,6 +254,7 @@ document.addEventListener('keydown', (e) => {
             keypressedEl,
             true
         ).then(() => {
+            appContainerEl.classList.add('firstKey');
             keyToPress = getRandomKeyForCurrentLevel();
             targetEl.innerHTML = keyToPress.display;
             targetEl.setAttribute('data-key', keyToPress.key);
@@ -253,6 +263,11 @@ document.addEventListener('keydown', (e) => {
 
     if (isMessageMode) {
         return;
+    } else {
+        if (appContainerEl.classList.contains('firstKey')) {
+            appContainerEl.classList.remove('firstKey');
+            introMusic.play();
+        }
     }
 
     keyToPress.xp_matches = keyToPress.xp_matches || 0;

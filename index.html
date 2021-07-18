@@ -18,6 +18,7 @@
       }
 
       #target {
+        position: relative;
         font-size: 32px;
       }
 
@@ -64,8 +65,17 @@
         font-size: 20px;
       }
 
-      .initialState.started #target, .initialState:not(.started) #keypressed  {
+      .initialState.firstKey #target, .initialState:not(.started) #keypressed  {
         animation: fade-out 500ms ease-in-out infinite alternate-reverse;
+      }
+
+      .initialState.firstKey #target:after {
+        content: '^';
+        position: absolute;
+        bottom: -26px;
+        left: 0;
+        animation: fade-out 400ms infinite reverse;
+        transform: scaleY(.4);
       }
 
       .initialState:not(.started) #keypressed  {
