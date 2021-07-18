@@ -208,8 +208,10 @@ document.addEventListener('keydown', (e) => {
     synth.cancel();
     synth.speak(whatToSay);
 
+    const matched = targetEl.getAttribute('data-key') === key;
+
     // if matched
-    if (targetEl.getAttribute('data-key') === key) {
+    if (matched) {
         currentScore += 10;
 
         keyToPress.xp_matches += 1;
@@ -251,8 +253,69 @@ document.addEventListener('keydown', (e) => {
     keypressedEl.classList.add('fade-out');
 
     scoreboardEl.innerHTML = currentScore;
-    targetEl.innerHTML = keyToPress.display;
-    targetEl.setAttribute('data-key', keyToPress.key);
+
+    if (matched) {
+        const targetElAnimation = targetEl.animate(
+            [
+                {
+                    transform: 'translate3D(0, -20px, 0) scale(.1)',
+                    opacity: 0,
+                },
+            ],
+            {
+                duration: 100,
+                iterations: 1,
+            }
+        );
+
+        targetElAnimation.onfinish = () => {
+            targetEl.innerHTML = keyToPress.display;
+            targetEl.setAttribute('data-key', keyToPress.key);
+
+            targetEl.animate(
+                [
+                    {
+                        transform: 'translate3D(0, 20px, 0) scale(2)',
+                        opacity: 0,
+                    },
+                    {
+                        transform: 'translate3D(0, 0, 0) scale(1)',
+                        opacity: 1,
+                    },
+                ],
+                {
+                    duration: 100,
+                    iterations: 1,
+                }
+            );
+        };
+    } else {
+        const variableScale = 0.95 + Math.random() * 0.05;
+        const variableTranslate = 5 + Math.random();
+        targetEl.animate(
+            [
+                {
+                    transform: 'translate3D(0, 0, 0)',
+                },
+                {
+                    transform: `translate3D(-${variableTranslate}px, 0, 0) scale(${variableScale})`,
+                },
+                {
+                    transform: 'translate3D(0, 0, 0)',
+                },
+                {
+                    transform: `translate3D(${variableTranslate}px, 0, 0) scale(${variableScale})`,
+                },
+                {
+                    transform: 'translate3D(0, 0, 0)',
+                },
+            ],
+            {
+                duration: 200,
+                iterations: 2,
+            }
+        );
+    }
 });
 
 function getRandomKeyForCurrentLevel() {
