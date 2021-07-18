@@ -68,6 +68,10 @@
         animation: fade-out 500ms ease-in-out infinite alternate-reverse;
       }
 
+      .initialState:not(.started) #keypressed  {
+        animation-duration: 1s;
+      } 
+
       .flash-match {
         animation: border-phase--match 300ms ease-in-out 0s 1 forwards;
       }
