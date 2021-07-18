@@ -282,7 +282,11 @@ document.addEventListener('keydown', (e) => {
     }
 
     scorebarUpdateEl.style.marginLeft =
-        scoreUpdate > 0 || currentScore === 0 ? 0 : `-${scorebarUpdateWidth}%`;
+        scoreUpdate > 0 ||
+        currentScore <= 0 ||
+        (currentLevel > 0 && currentScore <= levels[currentLevel - 1].goal)
+            ? 0
+            : `-${scorebarUpdateWidth}%`;
 
     scorebarUpdateEl.animate(
         [
