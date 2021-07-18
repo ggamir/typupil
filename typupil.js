@@ -8,6 +8,8 @@ const levelEl = document.getElementById('level');
 const targetEl = document.getElementById('target');
 const appContainerEl = document.getElementById('appContainer');
 const keypressedEl = document.getElementById('keypressed');
+const scorebarEl = document.getElementById('score-bar');
+const scorebarUpdateEl = document.getElementById('score-bar-update');
 const synth = window.speechSynthesis;
 synth.cancel();
 const speechCache = {};
@@ -69,7 +71,7 @@ const keys = [
                 key: 'Delete',
             },
             {
-                display: 'Backspaceg',
+                display: 'Backspace',
                 key: 'Backspace',
             },
             {
@@ -137,8 +139,8 @@ const keys = [
 const levels = [
     {
         level: 0,
-        goal: 1000,
-        keys: keys[0][0],
+        goal: 100,
+        keys: [...keys[0][0]],
         // [
         //   {
         //     keys: keys[0][0],
@@ -150,12 +152,18 @@ const levels = [
 
     {
         level: 1,
-        goal: 2000,
-        keys: [...keys[0][0], ...keys[0][1]],
+        goal: 500,
+        keys: [...keys[0][0]],
     },
 
     {
         level: 2,
+        goal: 1000,
+        keys: [...keys[0][0], ...keys[0][1]],
+    },
+
+    {
+        level: 3,
         goal: false,
         keys: [...keys[0][0], ...keys[0][1], ...keys[0][2]],
     },
@@ -211,8 +219,9 @@ document.addEventListener('keydown', (e) => {
     const matched = targetEl.getAttribute('data-key') === key;
 
     // if matched
+    let scoreUpdate = 0;
     if (matched) {
-        currentScore += 10;
+        scoreUpdate += 10;
 
         keyToPress.xp_matches += 1;
         keyToPress.xp_match_ratio =
@@ -221,9 +230,9 @@ document.addEventListener('keydown', (e) => {
         console.log(keyToPress);
 
         // update next keyToPress
-        let nextKeyToPress = getRandomKeyForCurrentLevel();
+        let nextKeyToPress = getRandomKeyForCurrentLevel(scoreUpdate);
         while (keyToPress === nextKeyToPress) {
-            nextKeyToPress = getRandomKeyForCurrentLevel();
+            nextKeyToPress = getRandomKeyForCurrentLevel(scoreUpdate);
         }
         keyToPress = nextKeyToPress;
 
@@ -234,7 +243,7 @@ document.addEventListener('keydown', (e) => {
 
         // if missed
     } else {
-        currentScore += 1;
+        scoreUpdate -= 5;
         keyToPress.xp_misses += 1;
         keyToPress.xp_match_ratio =
             keyToPress.xp_matches /
@@ -252,7 +261,64 @@ document.addEventListener('keydown', (e) => {
     void keypressedEl.offsetWidth; // hack to trigger reflow to allow animation to replay
     keypressedEl.classList.add('fade-out');
 
+    currentScore += scoreUpdate;
+    if (currentScore < 0) {
+        currentScore = 0;
+    }
     scoreboardEl.innerHTML = currentScore;
+
+    let scorebarUpdateWidth = Math.round(
+        (Math.abs(scoreUpdate) / levels[currentLevel].goal) * 100
+    );
+    let scorebarWidth = Math.round(
+        (currentScore / levels[currentLevel].goal) * 100
+    );
+    if (currentLevel > 0) {
+        scorebarWidth = Math.round(
+            ((currentScore - levels[currentLevel - 1].goal) /
+                (levels[currentLevel].goal - levels[currentLevel - 1].goal)) *
+                100
+        );
+    }
+
+    scorebarUpdateEl.style.marginLeft =
+        scoreUpdate > 0 || currentScore === 0 ? 0 : `-${scorebarUpdateWidth}%`;
+
+    scorebarUpdateEl.animate(
+        [
+            {
+                width: `${scorebarUpdateWidth}%`,
+                // opacity: 0,
+                marginLeft: scorebarUpdateEl.style.marginLeft,
+            },
+            // {
+            //     opacity: 1,
+            // },
+            {
+                width: '0px',
+                // opacity: 1,
+                marginLeft: 0,
+            },
+        ],
+        {
+            duration: 300,
+            iterations: 1,
+            fill: 'forwards',
+        }
+    );
+
+    scorebarEl.animate(
+        [
+            {
+                width: `${scorebarWidth}%`,
+            },
+        ],
+        {
+            duration: 300,
+            iterations: 1,
+            fill: 'forwards',
+        }
+    );
 
     if (matched) {
         const targetElAnimation = targetEl.animate(
@@ -318,9 +384,12 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-function getRandomKeyForCurrentLevel() {
+function getRandomKeyForCurrentLevel(scoreUpdate) {
     let currLevelData = levels[currentLevel];
-    if (currLevelData.goal && currentScore >= currLevelData.goal) {
+    if (
+        currLevelData.goal &&
+        currentScore + scoreUpdate >= currLevelData.goal
+    ) {
         currentLevel++;
         levelEl.innerHTML = currentLevel;
     }
