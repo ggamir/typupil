@@ -1,7 +1,8 @@
 'use strict';
 let currentLevel = 0;
 let currentScore = 0;
-let initialized = false;
+let isInitialized = false;
+let isMessageMode = false;
 let keyToPress;
 const scoreboardEl = document.getElementById('scoreboard');
 const levelEl = document.getElementById('level');
@@ -15,6 +16,16 @@ synth.cancel();
 const speechCache = {};
 
 const NO_KEY = 'NO_KEY';
+
+const startAudio = new Audio('audio/sfx/rupee.wav'); //new Audio('sword shine 1.wav');
+const mistakeAudio = new Audio('audio/sfx/small enemy hit.wav');
+const matchAudio = new Audio('audio/sfx/life refill.wav');
+// const levelUpAudio = new Audio('crystal.wav');
+const levelUpAudio = new Audio('audio/sfx/heart piece 1.wav');
+const messageAudio = new Audio('audio/sfx/message.wav');
+const messageFinishedAudio = new Audio('audio/sfx/message finish.wav');
+const gameMusic = new Audio('audio/music/025_A_New_Town.mp3'); //'The Last Sylph.ogg');
+gameMusic.loop = true;
 
 // keys = [layerIndex][keyColumnIndex]
 const keys = [
@@ -196,15 +207,42 @@ TODO
 */
 
 document.addEventListener('keydown', (e) => {
-    if (!initialized) {
-        keyToPress = getRandomKeyForCurrentLevel();
-        targetEl.innerHTML = keyToPress.display;
-        targetEl.setAttribute('data-key', keyToPress.key);
-        initialized = true;
-        keypressedEl.innerHTML = 'Press the key designated above.';
+    if (!isInitialized) {
+        isInitialized = true;
+        startAudio.play();
+
+        keypressedEl.innerHTML = '';
         levelEl.innerHTML = currentLevel;
         scoreboardEl.innerHTML = currentScore;
+        gameMusic.play();
         appContainerEl.classList.add('started');
+
+        animateMessages(
+            [
+                'Hello??? Is there someone there?',
+                'After all this time...!',
+                '...you are the only one that has heard me.',
+                'Please, this world needs your help!',
+                'It has been cast into darkness...',
+                'The only way is to light it up...',
+                '... through expression!',
+                'In this world, we can only express...',
+                '...with words and typing!',
+                'You have to build your stamina...',
+                '...with typing skills.',
+                'Are you ready?',
+                'Type the key above to begin!',
+            ],
+            keypressedEl,
+            true
+        ).then(() => {
+            keyToPress = getRandomKeyForCurrentLevel();
+            targetEl.innerHTML = keyToPress.display;
+            targetEl.setAttribute('data-key', keyToPress.key);
+        });
+    }
+
+    if (isMessageMode) {
         return;
     }
 
@@ -216,13 +254,14 @@ document.addEventListener('keydown', (e) => {
         speechCache[key] || new SpeechSynthesisUtterance(key));
     whatToSay.rate = 2;
     synth.cancel();
-    synth.speak(whatToSay);
+    // synth.speak(whatToSay);
 
     const matched = targetEl.getAttribute('data-key') === key;
 
     // if matched
     let scoreUpdate = 0;
     if (matched) {
+        matchAudio.play();
         scoreUpdate += 10;
 
         keyToPress.xp_matches += 1;
@@ -245,6 +284,7 @@ document.addEventListener('keydown', (e) => {
 
         // if missed
     } else {
+        mistakeAudio.play();
         scoreUpdate -= 5;
         keyToPress.xp_misses += 1;
         keyToPress.xp_match_ratio =
@@ -397,10 +437,74 @@ function getRandomKeyForCurrentLevel(scoreUpdate) {
         currLevelData.goal &&
         currentScore + scoreUpdate >= currLevelData.goal
     ) {
+        levelUpAudio.play();
         currentLevel++;
         levelEl.innerHTML = currentLevel;
     }
     const currentLevelKeys = currLevelData.keys;
     const randomKeyIndex = Math.floor(Math.random() * currentLevelKeys.length);
     return currentLevelKeys[randomKeyIndex];
+}
+
+function animateMessages(messageArray, messageContainerElement, finishEarly) {
+    const animateMessagesPromise = new Promise((resolve, reject) => {
+        animateMessageString(messageArray[0], messageContainerElement);
+        let messageIdx = 0;
+        isMessageMode = true;
+        document.addEventListener('keydown', (e) => {
+            if (messageIdx < messageArray.length - 1) {
+                messageIdx++;
+
+                animateMessageString(
+                    messageArray[messageIdx],
+                    messageContainerElement
+                );
+
+                if (finishEarly && messageIdx === messageArray.length - 1) {
+                    isMessageMode = false;
+                    resolve();
+                }
+            } else {
+                isMessageMode = false;
+                resolve();
+            }
+        });
+    });
+    return animateMessagesPromise;
+}
+
+function animateMessageString(messageString, messageContainerElement) {
+    messageContainerElement.innerHTML = '';
+    const messageWords = messageString.split(' ');
+    messageWords.forEach((word, idx, wordArr) => {
+        const newWordSpanEl = document.createElement('span');
+        newWordSpanEl.innerHTML = word;
+        newWordSpanEl.style.opacity = 0;
+        newWordSpanEl.style.marginRight = '10px';
+        const wordAnimation = newWordSpanEl.animate(
+            [
+                {
+                    opacity: 0,
+                },
+                {
+                    opacity: 1,
+                },
+            ],
+            {
+                duration: 50 + word.length * 10,
+                delay: 200 * idx + word.length,
+                iterations: 1,
+                fill: 'forwards',
+            }
+        );
+
+        wordAnimation.onfinish = () => {
+            if (idx < wordArr.length - 1) {
+                messageAudio.play();
+            } else {
+                messageFinishedAudio.play();
+            }
+        };
+        messageContainerElement.appendChild(newWordSpanEl);
+    });
 }
