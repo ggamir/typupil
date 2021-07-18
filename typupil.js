@@ -203,6 +203,8 @@ document.addEventListener('keydown', (e) => {
         initialized = true;
         keypressedEl.innerHTML = 'Press the key designated above.';
         levelEl.innerHTML = currentLevel;
+        scoreboardEl.innerHTML = currentScore;
+        appContainerEl.classList.add('started');
         return;
     }
 
@@ -362,6 +364,7 @@ document.addEventListener('keydown', (e) => {
     } else {
         const variableScale = 0.95 + Math.random() * 0.05;
         const variableTranslate = 5 + Math.random();
+        const variableIterations = 2 + Math.floor(Math.random() * 2);
         targetEl.animate(
             [
                 {
@@ -382,7 +385,7 @@ document.addEventListener('keydown', (e) => {
             ],
             {
                 duration: 200,
-                iterations: 2,
+                iterations: variableIterations,
             }
         );
     }
