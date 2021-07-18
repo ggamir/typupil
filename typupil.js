@@ -11,6 +11,7 @@ const appContainerEl = document.getElementById('appContainer');
 const keypressedEl = document.getElementById('keypressed');
 const scorebarEl = document.getElementById('score-bar');
 const scorebarUpdateEl = document.getElementById('score-bar-update');
+const heartsEl = document.getElementById('hearts');
 const synth = window.speechSynthesis;
 synth.cancel();
 const speechCache = {};
@@ -26,6 +27,8 @@ const messageAudio = new Audio('audio/sfx/message.wav');
 const messageFinishedAudio = new Audio('audio/sfx/message finish.wav');
 const gameMusic = new Audio('audio/music/025_A_New_Town.mp3'); //'The Last Sylph.ogg');
 gameMusic.loop = true;
+
+let heartCount = 0;
 
 // keys = [layerIndex][keyColumnIndex]
 const keys = [
@@ -163,18 +166,24 @@ const levels = [
 
     {
         level: 1,
-        goal: 500,
+        goal: 300,
         keys: [...keys[0][0]],
     },
 
     {
         level: 2,
-        goal: 1000,
+        goal: 500,
         keys: [...keys[0][0], ...keys[0][1]],
     },
 
     {
         level: 3,
+        goal: 800,
+        keys: [...keys[0][0], ...keys[0][1]],
+    },
+
+    {
+        level: 4,
         goal: false,
         keys: [...keys[0][0], ...keys[0][1], ...keys[0][2]],
     },
@@ -221,14 +230,14 @@ document.addEventListener('keydown', (e) => {
             [
                 'Hello??? Is there someone there?',
                 'After all this time...!',
-                '...you are the only one that has heard me.',
+                '...you are the only one that has heard us...',
                 'Please, this world needs your help!',
                 'It has been cast into darkness...',
-                'The only way is to light it up...',
+                '...and we need your light! The only way is...',
                 '... through expression!',
                 'In this world, we can only express...',
                 '...with words and typing!',
-                'You have to build your stamina...',
+                'You have to build your stamina for expression...',
                 '...with typing skills.',
                 'Are you ready?',
                 'Type the key above to begin!',
@@ -440,6 +449,11 @@ function getRandomKeyForCurrentLevel(scoreUpdate) {
         levelUpAudio.play();
         currentLevel++;
         levelEl.innerHTML = currentLevel;
+        heartCount++;
+
+        const heartSpanEl = document.createElement('span');
+        heartSpanEl.innerHTML = '❤';
+        heartsEl.appendChild(heartSpanEl);
     }
     const currentLevelKeys = currLevelData.keys;
     const randomKeyIndex = Math.floor(Math.random() * currentLevelKeys.length);

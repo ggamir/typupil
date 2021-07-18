@@ -114,7 +114,7 @@
         background: linear-gradient(to right, rgb(175, 19, 19), rgb(204, 42, 42));
       }
 
-      .hearts {
+      #hearts {
         position: absolute;
         top: -28px;
         left: 0;
@@ -125,15 +125,15 @@
         align-items: center;
       }
 
-      .hearts > *:not(:last-child) {
+      #hearts > *:not(:last-child) {
         margin-right: 3px;
       }
 
-      .hearts > *:last-child {
+      #hearts > *:last-child {
         font-size: 12px;
       }
 
-      .flash-miss .hearts {
+      .flash-miss #hearts {
         filter: sepia(100%) hue-rotate(316deg) saturate(600%);
       }
 
@@ -176,9 +176,7 @@
   <body>
 
     <div id="appContainer" class="app-container flash initialState">
-      <div class="hearts">
-        <span>❤</span><span>❤</span><span>❤</span>
-      </div>
+      <div id="hearts"></div>
       <div class="game-score-bar">
         <div id="score-bar"></div>
         <div id="score-bar-update"></div>
@@ -200,7 +198,7 @@
       </div>
       <div id="keypressed">Press any key to begin.</div>
     </div>
-    <script type="text/javascript" src="typupil.js"></script>
+    <script type="text/javascript" src="typupil.js" charset="UTF-8"></script>
   </body>
 
 </html>
