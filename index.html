@@ -59,6 +59,15 @@
 
       #keypressed {
         font-size: 10vw;
+        display: flex;
+        width: 100%;
+        flex-wrap: wrap;
+        margin: 20px;
+        justify-content: center;
+      }
+
+      #keypressed > * {
+        margin-button: 10px;
       }
 
       .initialState, .initialState #keypressed {
@@ -87,7 +96,8 @@
       }
 
       .flash-miss {
-        animation: border-phase--miss 300ms ease-in-out 0s 1 forwards;
+        animation: border-phase--miss 00ms ease-in-out 0s 1 forwards, 
+          shake--miss 120ms ease-in-out 0s 2 alternate-reverse;
         color: rgba(189, 11, 41, 0.795);
       }
 
@@ -124,15 +134,27 @@
         background: linear-gradient(to right, rgb(175, 19, 19), rgb(204, 42, 42));
       }
 
-      #hearts {
+      .outer-bar {
         position: absolute;
         top: -28px;
         left: 0;
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+      }
+
+      #message {
+        text-align: center;
+        width: 100%;
+      }
+
+      #hearts {
         filter: sepia(100%) hue-rotate(60deg) saturate(300%);
         opacity: .9;
         font-size: 16px;
         display: flex;
         align-items: center;
+        position: absolute;
       }
 
       #hearts > *:not(:last-child) {
@@ -167,6 +189,28 @@
         }
       }
 
+      @keyframes shake--miss {
+        0% {
+          transform: translate3d(0, 0, 0) rotate3d(1, 1, 1, 0deg);
+        } 
+
+        25% {
+          transform: translate3d(-2px, 0, 0) rotate3d(-.1, 1, 0, -15deg);
+        }
+
+        50% {
+          transform: translate3d(0, 0, 0) rotate3d(1, 1, 1, 0deg)
+        } 
+
+        75% {
+          transform: translate3d(2px, 0, 0) rotate3d(.1, 1, 0, 15deg);;
+        }
+
+        100% {
+          transform: translate3d(0, 0, 0) rotate3d(1, 1, 1, 0deg)
+        } 
+      }
+
       @keyframes fade-out {
         0% {
           opacity: 1;
@@ -186,7 +230,10 @@
   <body>
 
     <div id="appContainer" class="app-container flash initialState">
-      <div id="hearts"></div>
+      <div class="outer-bar">
+        <div id="hearts"></div>
+        <div id="message"></div>
+      </div>
       <div class="game-score-bar">
         <div id="score-bar"></div>
         <div id="score-bar-update"></div>

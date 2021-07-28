@@ -7,6 +7,7 @@ let keyToPress;
 const scoreboardEl = document.getElementById('scoreboard');
 const levelEl = document.getElementById('level');
 const targetEl = document.getElementById('target');
+const messageEl = document.getElementById('message');
 const appContainerEl = document.getElementById('appContainer');
 const keypressedEl = document.getElementById('keypressed');
 const scorebarEl = document.getElementById('score-bar');
@@ -45,7 +46,7 @@ const keys = [
         // Column 1 (right-most column of keys)
         [
             {
-                display: 'a | layer 3',
+                display: 'a',
                 key: 'a',
             },
             {
@@ -65,7 +66,7 @@ const keys = [
         // Column 2 (middle column)
         [
             {
-                display: 'e | layer 2',
+                display: 'e',
                 key: 'e',
             },
             {
@@ -85,7 +86,7 @@ const keys = [
         // Column 3 (left-most column)
         [
             {
-                display: 'Space | layer 1',
+                display: 'Space',
                 key: 'Space',
             },
             {
@@ -161,39 +162,60 @@ const keys = [
 const levels = [
     {
         level: 0,
-        goal: 100,
+        goal: 111,
         keys: [...keys[0][0]],
-        // [
-        //   {
-        //     keys: keys[0][0],
-        //     countdown: 10,
-        //     score: 10,
-        //   }
-        // ],
+        message: [
+            'Hello??? Is there someone there?',
+            'After all this time...!',
+            '...you are the only one that has heard us...',
+            'Please, this world needs your help!',
+            'It has been cast into darkness...',
+            '...and we need your light! The only way is...',
+            '... through expression!',
+            'In this world, we can only express...',
+            '...with words and typing!',
+            'You have to build your stamina for expression...',
+            '...with typing skills.',
+            'Are you ready?',
+            'Type the key above to begin!',
+        ],
     },
 
     {
         level: 1,
-        goal: 300,
+        goal: 333,
         keys: [...keys[0][0]],
+        message: [
+            "That's it! That's how you build stamina!",
+            "You're doing great! Keep going!",
+        ],
     },
 
     {
         level: 2,
-        goal: 500,
+        goal: 555,
         keys: [...keys[0][0], ...keys[0][1]],
+        message: ['Alright.', 'testing...', '...1...', '...2...', '...3...'],
     },
 
     {
         level: 3,
-        goal: 800,
+        goal: 888,
         keys: [...keys[0][0], ...keys[0][1]],
     },
 
     {
         level: 4,
-        goal: false,
+        goal: 1111,
         keys: [...keys[0][0], ...keys[0][1], ...keys[0][2]],
+    },
+
+    {
+        level: 5,
+        goal: 1555,
+        // keys: [...keys[0][0]],
+        phrases: ['aba bab', 'cab', 'abc', 'bad babe'],
+        message: ['Alright.', 'testing...', '...1...', '...2...', '...3...'],
     },
 ];
 
@@ -221,6 +243,40 @@ TODO
 
   add highscores (local)
   add scoreboards (global/internet)
+
+
+  attacking monsters - each monster has a "key" associated with it
+  and you type the key to attack it (in attack range); if incorrect, it misses.
+
+  sometimes, more powerful enemies and monsters have words associated with them that need to be typed to attack the monster.
+
+  bosses have whole sentences.
+
+  after mastering all the keys, some monsters will not have any keys associated with it
+  and you ahve to try all the keys to find out what hits it
+
+  maybe typing specific words causes special attacks or using items like health potion
+
+  if correct, it hits.
+
+  maybe the sword is for one-off attacks.
+  and theres a wand for "spells" which are words.
+  perhaps theres a spellbook that has the words and also the required items.
+  eg. for heal, you need some herbs, water, and honey, etc.
+  
+
+  lantern - fog of war around you. you have to increase the lantern to see more of the map
+  if you are out of fuel/light, then on other player's maps, you appear faded.
+  and for you everyone else is faded.
+
+  pub to meet other players and party.
+
+  guild to have guild reserves for light and letters and other items.
+  
+  typing letters correctly increases letters in "reserve" - used to send chat messages.
+  incorrect typing reduces letters in reserve. when sending chat messages, it also uses up letters.
+  if you don't have the ltter, then the message will be missing it.
+  for instance, when you type the missing letter, there's a rejection sound and the letter is faded
 */
 
 document.addEventListener('keydown', (e) => {
@@ -235,25 +291,7 @@ document.addEventListener('keydown', (e) => {
         rainBGAudio.play();
         appContainerEl.classList.add('started');
 
-        animateMessages(
-            [
-                'Hello??? Is there someone there?',
-                'After all this time...!',
-                '...you are the only one that has heard us...',
-                'Please, this world needs your help!',
-                'It has been cast into darkness...',
-                '...and we need your light! The only way is...',
-                '... through expression!',
-                'In this world, we can only express...',
-                '...with words and typing!',
-                'You have to build your stamina for expression...',
-                '...with typing skills.',
-                'Are you ready?',
-                'Type the key above to begin!',
-            ],
-            keypressedEl,
-            true
-        ).then(() => {
+        animateMessages(levels[0].message, keypressedEl, true).then(() => {
             appContainerEl.classList.add('firstKey');
             keyToPress = getRandomKeyForCurrentLevel();
             targetEl.innerHTML = keyToPress.display;
@@ -262,12 +300,15 @@ document.addEventListener('keydown', (e) => {
     }
 
     if (isMessageMode) {
+        appContainerEl.classList.add('initialState');
         return;
     } else {
         if (appContainerEl.classList.contains('firstKey')) {
             appContainerEl.classList.remove('firstKey');
             introMusic.play();
         }
+
+        appContainerEl.classList.remove('initialState');
     }
 
     keyToPress.xp_matches = keyToPress.xp_matches || 0;
@@ -296,9 +337,9 @@ document.addEventListener('keydown', (e) => {
 
         // update next keyToPress
         let nextKeyToPress = getRandomKeyForCurrentLevel(scoreUpdate);
-        while (keyToPress === nextKeyToPress) {
-            nextKeyToPress = getRandomKeyForCurrentLevel(scoreUpdate);
-        }
+        // while (keyToPress === nextKeyToPress) {
+        //     nextKeyToPress = getRandomKeyForCurrentLevel(scoreUpdate);
+        // }
         keyToPress = nextKeyToPress;
 
         appContainerEl.classList.remove('flash-miss');
@@ -320,8 +361,6 @@ document.addEventListener('keydown', (e) => {
         void appContainerEl.offsetWidth; // hack to trigger reflow to allow animation to replay
         appContainerEl.classList.add('flash-miss');
     }
-
-    appContainerEl.classList.remove('initialState');
 
     keypressedEl.classList.remove('fade-out');
     void keypressedEl.offsetWidth; // hack to trigger reflow to allow animation to replay
@@ -469,6 +508,16 @@ function getRandomKeyForCurrentLevel(scoreUpdate) {
         const heartSpanEl = document.createElement('span');
         heartSpanEl.innerHTML = '❤';
         heartsEl.appendChild(heartSpanEl);
+
+        if (levels[currentLevel].message) {
+            animateMessages(levels[currentLevel].message, messageEl).then(
+                () => {
+                    keyToPress = getRandomKeyForCurrentLevel();
+                    targetEl.innerHTML = keyToPress.display;
+                    targetEl.setAttribute('data-key', keyToPress.key);
+                }
+            );
+        }
     }
     const currentLevelKeys = currLevelData.keys;
     const randomKeyIndex = Math.floor(Math.random() * currentLevelKeys.length);
@@ -494,6 +543,7 @@ function animateMessages(messageArray, messageContainerElement, finishEarly) {
                     resolve();
                 }
             } else {
+                messageContainerElement.innerHTML = '';
                 isMessageMode = false;
                 resolve();
             }
@@ -509,7 +559,11 @@ function animateMessageString(messageString, messageContainerElement) {
         const newWordSpanEl = document.createElement('span');
         newWordSpanEl.innerHTML = word;
         newWordSpanEl.style.opacity = 0;
-        newWordSpanEl.style.marginRight = '10px';
+
+        if (idx < wordArr.length - 1) {
+            newWordSpanEl.style.marginRight = '10px';
+        }
+        newWordSpanEl.style.marginBottom = '10px';
         const wordAnimation = newWordSpanEl.animate(
             [
                 {
